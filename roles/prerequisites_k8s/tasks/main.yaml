@@ -1,0 +1,12 @@
+---
+# tasks file for ansible-install-k8s
+- name: Configuraciones previas para instalar kubernetes.
+  include_tasks: prerequisites.yaml
+
+- name: Instalación de componentes y configuración del nodo master.
+  include_tasks: master.yaml
+  when: "'master' in group_names"
+
+- name: Instalación de componentes y configuración del nodo worker.
+  include_tasks: worker.yaml
+  when: "'workers' in group_names"

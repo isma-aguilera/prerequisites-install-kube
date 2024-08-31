@@ -1,0 +1,105 @@
+- name: Levantar SELinux en modo permisivo
+  selinux:
+    policy: targeted
+    state: permissive
+
+- name: Instalar paquetes necesarios.
+  package:
+    name: "{{ item }}"
+  loop:
+    - "{{ packages_preinstall }}"
+
+- name: Deshabilita SWAP
+  shell: |
+    swapoff -a
+
+- name: Deshabilita SWAP en el fstab
+  lineinfile:
+    path: /etc/fstab
+    state: absent
+    search_string: 'swap'
+
+- name: Configurar timezone
+  timezone:
+    name: "{{ timezone }}"
+
+- name: Instalar chrony
+  package:
+    name: chrony
+    state: present
+
+- name: Copia el archivo chrony.conf
+  copy:
+    src: files/chrony.conf
+    dest: /etc/chrony.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Levantar servicio chrony
+  systemd_service:
+    name: chronyd
+    state: started
+    enabled: yes
+
+- name: Sincronizar hora.
+  shell: |
+    chronyc sources
+
+- name: Bajar servicio Firewalld
+  systemd_service:
+    name: firewalld
+    state: stopped
+    enabled: no
+
+- name: Agregar módulos y parámetros del kernel
+  modprobe:
+    name: '{{ item }}'
+    state: present
+  loop:
+    - "{{ modprobe_kernel }}"
+
+- name: Configurar parámetros sysctl para red.
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    sysctl_set: yes
+    state: present
+    reload: yes
+  with_items:
+    - { name: 'net.bridge.bridge-nf-call-iptables', value: '1' }
+    - { name: 'net.ipv4.ip_forward', value: '1' }
+    - { name: 'net.bridge.bridge-nf-call-ip6tables', value: '1' }
+
+- name: Agregar repositorio de docker.
+  get_url:
+    url: '{{ baseurl_docker }}'
+    dest: /etc/yum.repos.d/docer-ce.repo
+
+- name: Instalar Docker.
+  package:
+    name: "{{ item }}"
+  loop:
+    - "{{ docker }}"
+
+- name: Configurar containerd para que utilice systemdcgroup.
+  shell: |
+    containerd config default | tee /etc/containerd/config.toml >/dev/null 2>&1
+    sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
+
+- name: Levantar servicio docker
+  systemd_service:
+    name: docker
+    state: started
+    enabled: yes
+  
+- name: Agregar el repositorio de Kubernetes
+  yum_repository:
+    name: kubernetes
+    description: Kubernetes
+    baseurl: '{{ baseurl_kube }}'
+    enabled: yes
+    gpgcheck: yes
+    repo_gpgcheck: yes
+    gpgkey: '{{ gpgkey_kube }}'
+

@@ -1,0 +1,6 @@
+---
+- name: Playbook de Ansible para la instalación y configuración de los requisitos previos necesarios para desplegar Kubernetes.
+  hosts: all
+  become: yes
+  roles:
+    - prerequisites_k8s

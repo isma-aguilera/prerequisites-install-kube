@@ -1,0 +1,14 @@
+- name: Instalar kubeadm, kubelet, y kubectl
+  dnf:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - "{{ kube_tools }}"
+    - kubeadm
+    - kubelet
+    - kubectl
+
+- name: Habilitar servicio kubelet
+  systemd_service:
+    name: kubelet
+    enabled: yes

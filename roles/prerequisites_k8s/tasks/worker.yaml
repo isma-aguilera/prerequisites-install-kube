@@ -1,0 +1,9 @@
+- name: Instalar kubeadm, kubelet, y kubectl
+  dnf:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - "{{ kube_tools }}"
+    - kubeadm
+    - kubelet
+    - kubectl

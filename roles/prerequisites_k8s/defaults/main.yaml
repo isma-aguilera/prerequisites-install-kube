@@ -1,0 +1,5 @@
+network: 10.244.0.0/16
+baseurl_kube: https://pkgs.k8s.io/core:/stable:/v1.30/rpm/
+gpgkey_kube: https://pkgs.k8s.io/core:/stable:/v1.30/rpm/repodata/repomd.xml.key
+baseurl_docker: https://download.docker.com/linux/centos/docker-ce.repo
+timezone: "America/Asuncion"

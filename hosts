@@ -1,0 +1,8 @@
+[master]
+kube-master-tst01 ansible_host=192.168.X.X
+
+[workers]
+kube-worker-tst01 ansible_host=192.168.X.X
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
