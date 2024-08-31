@@ -4,8 +4,6 @@ packages_preinstall:
   - bash-completion
   - wget
   - curl
-  - firewalld
-  - python3-firewall
   - yum-utils
   - lvm2
   - device-mapper-persistent-data
@@ -15,10 +13,6 @@ docker:
   - docker-ce
   - docker-ce-cli
   - containerd.io
-
-modprobe_kernel:
-  - overlay
-  - br_netfilter
 
 kube_tools:
   - kubeadm
